@@ -4,8 +4,6 @@
             #?(:clj [clojure.core.async :as a]
                :cljs [cljs.core.async :as a])
 
-            #?(:clj [clojure.java.io :as io])
-
             #?(:clj [clojure.tools.reader.edn :as edn]
                :cljs [cljs.reader :as edn])
 
@@ -100,3 +98,12 @@
      :write-ch (a/map> #(when %
                           (freeze fmtr %))
                        write-ch)}))
+
+(defn thaw-message
+  [fmtr message]
+  (try
+    {:message (thaw fmtr message)}
+    (catch #?(:clj Exception, :cljs js/Error) e
+      {:error :invalid-format
+       :cause e
+       :invalid-msg message})))

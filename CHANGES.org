@@ -1,4 +1,28 @@
 * Changes
+** 0.9.x
+*** 0.9.0
+
+This version deprecates the :read-ch and :write-ch options in favour of
+new :read-chan and :write-chan options with different semantics.
+
+When :read-ch and :write-ch are used, the values chord puts into those
+channels are encoded - already frozen in the case of the write channel,
+and not yet thawed in the case of the read channel. This means any
+transducers on those channels must thaw and freeze again in order to use
+the data in each message. It also means existing channels can't be used
+directly for reading and writing.
+
+When using :read-chan and :write-chan, freezing and thawing happen right
+at the websocket boundary - directly before and after writing to and
+reading from the websocket respectively. This means that any channels
+passed in only ever see decoded values, and means that if it's desirable
+the duplex channel returned by chord can be ignored in favour of using
+the read and write channels directly.
+
+There should be no breaking changes from 0.8.1 - the existing behaviour
+is retained when :read-ch or :write-ch are passed. Using the two styles
+together will cause an exception to be raised.
+
 ** 0.8.x
 *** 0.8.1
 Add support for NodeJS websocket clients - thanks to [[https://github.com/ageneau][Sylvain Ageneau]]!
